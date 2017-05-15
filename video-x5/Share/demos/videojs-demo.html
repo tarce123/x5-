@@ -1,0 +1,108 @@
+<!doctype html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Videojs - Demo</title>
+        <link href="http://www.jq22.com/demo/video-js/css/video-js.min.css" rel="stylesheet"/>
+        <script src="http://www.jq22.com/demo/video-js/js/video.min.js"></script>
+        <style>
+            body {
+                background-color: #252525
+            }
+            .m{
+                margin-left: auto;
+                margin-right: auto;
+                width: 960px;
+                height: 400px;
+                margin-top: 100px
+            }
+        </style>
+    </head>
+    <body>
+        <!--First Way-->
+        <div id="cons" class="m">
+            <!--<video id="my-player" class="video-js" controls preload="auto" poster="//vjs.zencdn.net/v/oceans.png" data-setup=''>
+                <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4"></source>
+                <source src="//vjs.zencdn.net/v/oceans.ogv" type="video/ogg"></source>
+                <p class="vjs-no-js">
+                    Not Support Video TAG.
+                    <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                </p>
+            </video>-->
+        </div>
+
+        <!--Second Way-->
+        <script type="text/javascript">
+
+            // 设置视频源(mp4 to formats)
+            var getVideoSource = function(url){
+
+                console.debug("getVideoSource ==> " + url);
+                
+                if(!url){
+                    return false;
+                }
+                // if mp4 format
+                var isMp4 = /\.mp4/ig.test(url);
+
+                // set sources
+                var source = [];
+                // m3u8
+                if(isMp4){
+                    // mp4 ==> "mp4", "mov", "webm", "ogv", "hts"
+                    var formats = ["mp4", "mov", "webm", "ogv"];
+                    // sources
+                    for (var i = 0; i < formats.length; i++) {
+                        var o = {};
+                        var _format = formats[i];
+                        o.type = "video/" + _format;
+                        // url+formats[i];
+                        o.src =  url.replace(/\.mp4/ig, "." + _format);
+                        source.push(o);
+                    };
+                    console.debug("vod socure ===>", source);
+                }
+                // exports
+                return source;
+                // return video;
+            };
+
+            // get sources
+            var vjsSources = getVideoSource("http://vjs.zencdn.net/v/oceans.mp4");
+            
+            // create video tag
+            var v = document.createElement("video");
+                v.id = "my-player";
+                v.className = "video-js";
+            document.querySelector("#cons").appendChild(v);
+
+            // do init
+            var myPlayer = videojs(v, {
+                sources: vjsSources,
+                autoplay: true,
+                preload: "auto",
+                controls: true,
+                techOrder: ["html5", "flash"]
+            }, 
+            // onsuccess callback
+            function(){
+                var vjs = this;
+                
+                // timeupdate
+                vjs.on("timeupdate", function(){
+                    console.info("vjs=>timeupdate => " + vjs.currentTime());
+                });
+
+                // play
+                vjs.on("play", function(){
+                    console.info("vjs=>play");
+                });
+
+                // pause
+                vjs.on("pause", function(){
+                    console.info("vjs=>pause");
+                });
+            });
+        </script>
+    </body>
+</html>

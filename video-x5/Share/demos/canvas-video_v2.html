@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; utf-8"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+	<title>Video-Canvas width Effect</title>
+	<style>
+		*{
+			padding: 0;
+			margin: 0;
+		}
+		#c {
+			position: relative;;
+			display: block;
+			z-index: 10;
+		}
+		 
+		#v {
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			display: block;
+			object-position: 0 0;
+		}
+	</style>
+	<script type="text/javascript" src="effect.js"></script>
+	<script>
+
+	// on dom load
+	document.addEventListener('DOMContentLoaded', function(){
+
+		var src = "source/test.mp4",
+			body = document.body;
+
+		// 创建Video
+		var v = document.createElement("video");
+		v.src = src;
+		v.id = "v";
+		v.setAttribute("controls", "controls");
+		v.setAttribute("autoplay", "autoplay");
+		v.setAttribute("playsinline", "");
+		v.setAttribute("x5-video-player-type", "h5");
+		body.appendChild(v);
+
+		// 创建Canvas
+		var c = document.createElement("canvas");
+		c.id = "c";
+		body.appendChild(c);
+		
+		// video
+		var v = document.getElementById('v');
+		
+		// canvas
+		var canvas = document.getElementById('c'),
+			context = canvas.getContext('2d');
+		
+		// back
+		var back = document.createElement('canvas'),
+			backcontext = back.getContext('2d');
+	 	
+	 	// w & h
+		var cw,
+			ch;
+	 	
+	 	// play
+		v.addEventListener('play', function(){
+			
+			cw = v.clientWidth;
+			ch = v.clientHeight = cw * 0.54;
+			
+			canvas.width = cw;
+			canvas.height = ch;
+			
+			back.width = cw;
+			back.height = ch;
+
+			// styles
+			canvas.style["padding-top"] = (ch + 10) + "px";
+
+			// draw
+			draw(v, context, backcontext, cw, ch);
+
+		},false);
+	 
+	},false);
+	 
+
+	// do.drawing
+	function draw(v, c, bc, w, h) {
+		if(v.paused || v.ended)	{
+			return false;
+		}
+
+		var a = arguments;
+		
+		// First, draw it into the backing canvas
+		bc.drawImage(v, 0, 0, w, h);
+		
+		// Grab the pixel data from the backing canvas
+		var idata = bc.getImageData(0, 0, w, h);
+
+		// Effects
+		var data = null;
+		
+		// cameo效果
+		// data = effect.cameo(idata);
+		// data = effect.gary(idata);
+		data = effect.old(idata);
+		// data = effect.comic(idata);
+		
+		// change effect data
+		idata.data = data;
+		
+		// Draw the pixels onto the visible canvas
+		c.putImageData(idata, 0, 0);
+		
+		// Start over!
+		setTimeout(function(){
+			a.callee(v, c, bc, w, h);
+		}, 20);
+
+	}
+	</script>  
+	</head>
+
+	<body></body>
+</html>

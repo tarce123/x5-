@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>H5 For X5</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+        <style type="text/css">
+        	*{
+        		margin: 0;
+        		padding: 0;
+        		background: #002133;
+                font-family: Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', Arial, sans-serif;
+        	}
+            body{
+                width: 100%;
+                height: 100%;
+                position: absolute;
+            }
+        	#test{
+        		position: absolute;
+        		width: auto;
+        		top: 0;
+        		left: 0;
+        		right: 0;
+        		bottom: 0;
+        		display: block;
+        		background-size: 100% 100%;
+        		background-repeat: no-repeat;
+        	}
+    		video{
+                display: block;
+    			background: black;
+    		}
+            p{
+                font-size: 12px;
+                color: #5d5d5d;
+                padding: 2px 18px;
+            }
+            p.active{
+                color: #04ff13;
+            }
+            p.warn{
+                color: red;
+            }
+            a,span{
+                display: inline-block;
+                padding: 2px;
+                color: yellow;
+                margin: 15px;
+                font-weight: bold;
+                text-decoration: underline;
+            }
+            #media{
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1;
+            }
+            .mod_video_button{
+                z-index: 100;
+                position: relative;
+            }
+            .circle{
+                width: 30%;
+                height: 50px;
+                border-radius: 50em;
+                background: red;
+                font-size: 40px;
+                z-index: 100;
+                position: fixed;
+                left: 10%;
+                top: 40%;
+                text-align: center;
+                color: #FFFFFF;
+            }
+            #ua_ctx{
+                position: fixed;
+                z-index: 100;
+                top: 0;
+                left: 0;
+                margin: 5px;
+                color: #cccccc;
+                border-radius: 10px;
+            }
+            #ua_ctx p{
+                line-height: 18px;
+                color: #FFFFFF;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- logs -->
+        <section id="doit"></section>
+
+        <!-- circle -->
+        <div id="ctxt" class="circle"></div>
+
+        <!--ua-->
+        <div id="ua_ctx"><p></p></div>
+
+        <!-- button -->
+        <nav class="mod_video_button">
+            <span id="pause">PAUSE</span>
+            <span id="play">PLAY</span>
+        </nav>
+
+        <!-- Scripts -->
+        <script type="text/javascript">
+
+            // create video tag
+            var video = document.createElement("video");
+            video.src = "source/test.mp4";
+            video.id = "media";
+            
+            video.setAttribute("controls", "controls");
+            video.setAttribute("preload", "auto");
+            
+            // IOS 小窗
+            video.setAttribute("playsinline", "");
+
+            // 微信x5同层交互标识
+            video.setAttribute("x5-video-player-type", "h5");
+
+            // UA
+            document.querySelector("#ua_ctx p").innerHTML = window.navigator.userAgent;
+
+            // append el to body
+            document.body.appendChild(video);
+
+            // MC
+            var MC = document.querySelector('#media');
+
+            // Do init
+            (function (el) {
+                
+                // list of events
+                var media_events = new Object();
+                media_events["loadstart"] = "loadstart";
+                media_events["progress"] =1;
+                media_events["suspend"] = 1;
+                media_events["abort"] = 1;
+                media_events["error"] = "error";
+                media_events["emptied"] = 1;
+                media_events["stalled"] = 1;
+                media_events["loadedmetadata"] = 1;
+                media_events["loadeddata"] = 1;
+                media_events["canplay"] = 1;
+                media_events["canplaythrough"] = 1;
+                media_events["playing"] = 1;
+                media_events["waiting"] = 1;
+                media_events["seeking"] = 1;
+                media_events["seeked"] = 1;
+                media_events["ended"] = 1;
+                media_events["durationchange"] = 1;
+                media_events["timeupdate"] = 1;
+                media_events["play"] = 1;
+                media_events["pause"] = 1;
+                media_events["ratechange"] = 1;
+                media_events["resize"] = 1;
+                media_events["volumechange"] = 1;
+
+
+                // binding events
+                var counts = {};
+                for (var eventName in media_events) {
+                    
+                    // print in html
+                    var c = document.createElement("p");
+                        c.id = "mc_"+eventName;
+
+                    c.innerHTML = eventName;
+                    document.querySelector("#doit").appendChild(c);
+
+                    // event execute times
+                    counts[eventName] = 0;
+
+                    // exe event
+                    el.addEventListener(eventName, function (e) {
+
+                        
+
+                        // timeupdate
+                        if(e.type === "timeupdate"){
+                            document.querySelector("#ctxt").innerHTML = parseInt(el.currentTime, 10);
+                        }
+
+                        // error
+                        if(e.type === "error"){
+                            
+                            document.querySelector("#mc_"+e.type).innerHTML += " => CODE => "+el.error.code;
+
+                            console.info("错误代码: " + el.error.code);
+                            console.info("错误资源: " + el.src);
+                            // todo ==> AJAX POST
+                        }
+
+                    }, false);
+
+                };
+
+                // MC.src = url;
+                MC.load();
+                el.play();
+
+
+                document.querySelector("#play").addEventListener("click", function () {
+                    el.play();
+                }, false);
+
+                document.querySelector("#pause").addEventListener("click", function () {
+                    el.pause();
+                }, false);
+
+            })(MC);
+
+            // append details in HTML
+            // document.querySelector("#tag").innerHTML = ("CurrentTAG:==>"+ MC.nodeName);
+        </script>
+
+    </body>
+</html>
